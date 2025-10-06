@@ -13,10 +13,18 @@ interface SalesSectionProps {
   petrol: SaleItem;
   powerPetrol: SaleItem;
   diesel: SaleItem;
+<<<<<<< HEAD
+  otherAmount?: string;
+  onUpdate: (field: string, type: 'price' | 'quantity', value: string) => void;
+}
+
+export const SalesSection = ({ petrol, powerPetrol, diesel, otherAmount, onUpdate }: SalesSectionProps) => {
+=======
   onUpdate: (field: string, type: 'price' | 'quantity', value: string) => void;
 }
 
 export const SalesSection = ({ petrol, powerPetrol, diesel, onUpdate }: SalesSectionProps) => {
+>>>>>>> origin/main
   return (
     <Card>
       <CardHeader>
@@ -125,12 +133,31 @@ export const SalesSection = ({ petrol, powerPetrol, diesel, onUpdate }: SalesSec
           </div>
         </div>
 
+<<<<<<< HEAD
+        {/* Other */}
+        <div className="space-y-2">
+          <Label className="text-sm font-semibold">Other</Label>
+          <Input
+            type="number"
+            placeholder="0.00"
+            value={otherAmount || ''}
+            onChange={(e) => onUpdate('other', 'price', e.target.value)}
+            className="h-9"
+          />
+        </div>
+
+=======
+>>>>>>> origin/main
         {/* Section Total */}
         <div className="pt-2 border-t">
           <div className="flex justify-between items-center">
             <Label className="text-sm font-semibold">Total Sales:</Label>
             <div className="text-lg font-bold text-primary">
+<<<<<<< HEAD
+              ₹{(petrol.total + powerPetrol.total + diesel.total + parseFloat(otherAmount || '0')).toFixed(2)}
+=======
               ₹{(petrol.total + powerPetrol.total + diesel.total).toFixed(2)}
+>>>>>>> origin/main
             </div>
           </div>
         </div>

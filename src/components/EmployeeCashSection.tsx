@@ -12,6 +12,22 @@ interface CashEntry {
 }
 
 interface EmployeeCashSectionProps {
+<<<<<<< HEAD
+  shortEntries: CashEntry[];
+  borrowEntries: CashEntry[];
+  receivedEntries: CashEntry[];
+  rewardEntries: CashEntry[];
+  onAddEntry: (type: 'short' | 'borrow' | 'received' | 'reward') => void;
+  onRemoveEntry: (type: 'short' | 'borrow' | 'received' | 'reward', id: string) => void;
+  onUpdateEntry: (type: 'short' | 'borrow' | 'received' | 'reward', id: string, field: 'name' | 'amount', value: string) => void;
+}
+
+export const EmployeeCashSection = ({
+  shortEntries,
+  borrowEntries,
+  receivedEntries,
+  rewardEntries,
+=======
   cashIn: CashEntry[];
   cashOut: CashEntry[];
   onAddEntry: (type: 'cashIn' | 'cashOut') => void;
@@ -22,14 +38,24 @@ interface EmployeeCashSectionProps {
 export const EmployeeCashSection = ({
   cashIn,
   cashOut,
+>>>>>>> origin/main
   onAddEntry,
   onRemoveEntry,
   onUpdateEntry,
 }: EmployeeCashSectionProps) => {
+<<<<<<< HEAD
+  const shortTotal = shortEntries.reduce((sum, entry) => sum + parseFloat(entry.amount || '0'), 0);
+  const borrowTotal = borrowEntries.reduce((sum, entry) => sum + parseFloat(entry.amount || '0'), 0);
+  const receivedTotal = receivedEntries.reduce((sum, entry) => sum + parseFloat(entry.amount || '0'), 0);
+  const rewardTotal = rewardEntries.reduce((sum, entry) => sum + parseFloat(entry.amount || '0'), 0);
+
+  const renderEntries = (entries: CashEntry[], type: 'short' | 'borrow' | 'received' | 'reward') => (
+=======
   const cashInTotal = cashIn.reduce((sum, entry) => sum + parseFloat(entry.amount || '0'), 0);
   const cashOutTotal = cashOut.reduce((sum, entry) => sum + parseFloat(entry.amount || '0'), 0);
 
   const renderEntries = (entries: CashEntry[], type: 'cashIn' | 'cashOut') => (
+>>>>>>> origin/main
     <div className="space-y-3">
       {entries.map((entry) => (
         <div key={entry.id} className="flex gap-2">
@@ -77,6 +103,56 @@ export const EmployeeCashSection = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Users className="h-5 w-5 text-accent" />
+<<<<<<< HEAD
+          Employee Cash
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Tabs defaultValue="short" className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="short">Short</TabsTrigger>
+            <TabsTrigger value="borrow">Borrow</TabsTrigger>
+            <TabsTrigger value="received">Received</TabsTrigger>
+            <TabsTrigger value="reward">Reward</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="short" className="space-y-4 mt-4">
+            {renderEntries(shortEntries, 'short')}
+            <div className="pt-2 border-t">
+              <div className="flex justify-between items-center">
+                <Label className="text-sm font-semibold">Total Short:</Label>
+                <div className="text-lg font-bold text-destructive">₹{shortTotal.toFixed(2)}</div>
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="borrow" className="space-y-4 mt-4">
+            {renderEntries(borrowEntries, 'borrow')}
+            <div className="pt-2 border-t">
+              <div className="flex justify-between items-center">
+                <Label className="text-sm font-semibold">Total Borrow:</Label>
+                <div className="text-lg font-bold text-destructive">₹{borrowTotal.toFixed(2)}</div>
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="received" className="space-y-4 mt-4">
+            {renderEntries(receivedEntries, 'received')}
+            <div className="pt-2 border-t">
+              <div className="flex justify-between items-center">
+                <Label className="text-sm font-semibold">Total Received:</Label>
+                <div className="text-lg font-bold text-success">₹{receivedTotal.toFixed(2)}</div>
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="reward" className="space-y-4 mt-4">
+            {renderEntries(rewardEntries, 'reward')}
+            <div className="pt-2 border-t">
+              <div className="flex justify-between items-center">
+                <Label className="text-sm font-semibold">Total Reward:</Label>
+                <div className="text-lg font-bold text-success">₹{rewardTotal.toFixed(2)}</div>
+=======
           Employee Cash IN/OUT
         </CardTitle>
       </CardHeader>
@@ -107,6 +183,7 @@ export const EmployeeCashSection = ({
                 <div className="text-lg font-bold text-destructive">
                   ₹{cashOutTotal.toFixed(2)}
                 </div>
+>>>>>>> origin/main
               </div>
             </div>
           </TabsContent>
