@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { useEffect, useState } from "react";
+=======
+import { useState } from "react";
+>>>>>>> origin/main
 import { format } from "date-fns";
 import { Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,8 +13,11 @@ import { SalesSection } from "@/components/SalesSection";
 import { EarningsSection } from "@/components/EarningsSection";
 import { ExpenseSection } from "@/components/ExpenseSection";
 import { EmployeeCashSection } from "@/components/EmployeeCashSection";
+<<<<<<< HEAD
 import { UnpaidAmountCard } from "@/components/UnpaidAmountCard";
 import { ReadingsCard } from "../components/ReadingsCard";
+=======
+>>>>>>> origin/main
 import { cn } from "@/lib/utils";
 
 interface SaleItem {
@@ -19,8 +26,11 @@ interface SaleItem {
   total: number;
 }
 
+<<<<<<< HEAD
 // Earnings are single-amount entries per mode
 
+=======
+>>>>>>> origin/main
 interface CashEntry {
   id: string;
   name: string;
@@ -35,17 +45,27 @@ const Index = () => {
     petrol: { price: '', quantity: '', total: 0 },
     powerPetrol: { price: '', quantity: '', total: 0 },
     diesel: { price: '', quantity: '', total: 0 },
+<<<<<<< HEAD
     other: '',
   });
 
   // Earnings state (single amount per mode)
   const [earnings, setEarnings] = useState({
     cash: '',
+=======
+  });
+
+  // Earnings state
+  const [earnings, setEarnings] = useState({
+>>>>>>> origin/main
     phonePayNight: '',
     phonePayDay: '',
     cardSwipe: '',
     hpPaySwipe: '',
+<<<<<<< HEAD
     otp: '',
+=======
+>>>>>>> origin/main
     other: '',
   });
 
@@ -54,6 +74,7 @@ const Index = () => {
     petrolTesting: { price: '', quantity: '', total: 0 },
     powerPetrolTesting: { price: '', quantity: '', total: 0 },
     dieselTesting: { price: '', quantity: '', total: 0 },
+<<<<<<< HEAD
     tankerDiesel: { price: '', quantity: '', total: 0 },
   });
 
@@ -99,6 +120,16 @@ const Index = () => {
       if (field === 'other') {
         return { ...prev, other: sanitizeNumericString(value) };
       }
+=======
+  });
+
+  // Employee cash state
+  const [cashIn, setCashIn] = useState<CashEntry[]>([{ id: '1', name: '', amount: '' }]);
+  const [cashOut, setCashOut] = useState<CashEntry[]>([{ id: '1', name: '', amount: '' }]);
+
+  const updateSale = (field: string, type: 'price' | 'quantity', value: string) => {
+    setSales(prev => {
+>>>>>>> origin/main
       const item = prev[field as keyof typeof prev] as SaleItem;
       const updated = { ...item, [type]: value };
       updated.total = parseFloat(updated.price || '0') * parseFloat(updated.quantity || '0');
@@ -106,7 +137,11 @@ const Index = () => {
     });
   };
 
+<<<<<<< HEAD
   const updateEarning = (field: keyof typeof earnings, value: string) => {
+=======
+  const updateEarning = (field: string, value: string) => {
+>>>>>>> origin/main
     setEarnings(prev => ({ ...prev, [field]: value }));
   };
 
@@ -119,6 +154,7 @@ const Index = () => {
     });
   };
 
+<<<<<<< HEAD
   // Employee cash handlers are provided inline where used
 
   // Calculate totals
@@ -152,6 +188,48 @@ const Index = () => {
     });
     setNotes("");
   }, [date]);
+=======
+  const addCashEntry = (type: 'cashIn' | 'cashOut') => {
+    const newEntry = { id: Date.now().toString(), name: '', amount: '' };
+    if (type === 'cashIn') {
+      setCashIn(prev => [...prev, newEntry]);
+    } else {
+      setCashOut(prev => [...prev, newEntry]);
+    }
+  };
+
+  const removeCashEntry = (type: 'cashIn' | 'cashOut', id: string) => {
+    if (type === 'cashIn') {
+      setCashIn(prev => prev.filter(entry => entry.id !== id));
+    } else {
+      setCashOut(prev => prev.filter(entry => entry.id !== id));
+    }
+  };
+
+  const updateCashEntry = (
+    type: 'cashIn' | 'cashOut',
+    id: string,
+    field: 'name' | 'amount',
+    value: string
+  ) => {
+    const updateFn = (prev: CashEntry[]) =>
+      prev.map(entry => (entry.id === id ? { ...entry, [field]: value } : entry));
+    
+    if (type === 'cashIn') {
+      setCashIn(updateFn);
+    } else {
+      setCashOut(updateFn);
+    }
+  };
+
+  // Calculate totals
+  const totalSales = sales.petrol.total + sales.powerPetrol.total + sales.diesel.total;
+  const totalEarnings = Object.values(earnings).reduce((sum, val) => sum + parseFloat(val || '0'), 0);
+  const totalExpenses = expenses.petrolTesting.total + expenses.powerPetrolTesting.total + expenses.dieselTesting.total;
+  const totalCashIn = cashIn.reduce((sum, entry) => sum + parseFloat(entry.amount || '0'), 0);
+  const totalCashOut = cashOut.reduce((sum, entry) => sum + parseFloat(entry.amount || '0'), 0);
+  const netTotal = totalSales + totalEarnings - totalExpenses + totalCashIn - totalCashOut;
+>>>>>>> origin/main
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-6 lg:p-8">
@@ -189,14 +267,20 @@ const Index = () => {
               petrol={sales.petrol}
               powerPetrol={sales.powerPetrol}
               diesel={sales.diesel}
+<<<<<<< HEAD
               otherAmount={sales.other}
+=======
+>>>>>>> origin/main
               onUpdate={updateSale}
             />
             <ExpenseSection
               petrolTesting={expenses.petrolTesting}
               powerPetrolTesting={expenses.powerPetrolTesting}
               dieselTesting={expenses.dieselTesting}
+<<<<<<< HEAD
               tankerDiesel={expenses.tankerDiesel}
+=======
+>>>>>>> origin/main
               onUpdate={updateExpense}
             />
           </div>
@@ -204,16 +288,23 @@ const Index = () => {
           {/* Right Column */}
           <div className="space-y-4">
             <EarningsSection
+<<<<<<< HEAD
               cash={earnings.cash}
+=======
+>>>>>>> origin/main
               phonePayNight={earnings.phonePayNight}
               phonePayDay={earnings.phonePayDay}
               cardSwipe={earnings.cardSwipe}
               hpPaySwipe={earnings.hpPaySwipe}
+<<<<<<< HEAD
               otp={earnings.otp}
+=======
+>>>>>>> origin/main
               other={earnings.other}
               onUpdate={updateEarning}
             />
             <EmployeeCashSection
+<<<<<<< HEAD
               shortEntries={shortEntries}
               borrowEntries={borrowEntries}
               receivedEntries={receivedEntries}
@@ -238,10 +329,18 @@ const Index = () => {
                 if (type === 'received') setReceivedEntries(updater);
                 if (type === 'reward') setRewardEntries(updater);
               }}
+=======
+              cashIn={cashIn}
+              cashOut={cashOut}
+              onAddEntry={addCashEntry}
+              onRemoveEntry={removeCashEntry}
+              onUpdateEntry={updateCashEntry}
+>>>>>>> origin/main
             />
           </div>
         </div>
 
+<<<<<<< HEAD
         <div className="grid lg:grid-cols-2 gap-4">
           <UnpaidAmountCard
             entries={unpaid}
@@ -252,6 +351,8 @@ const Index = () => {
           <ReadingsCard readings={readings} onUpdate={updateReading} />
         </div>
 
+=======
+>>>>>>> origin/main
         {/* Summary Card */}
         <Card className="bg-gradient-to-br from-primary/5 to-accent/5 border-2">
           <CardContent className="p-6">
@@ -269,6 +370,7 @@ const Index = () => {
                 <p className="text-lg font-bold text-destructive">₹{totalExpenses.toFixed(2)}</p>
               </div>
               <div className="space-y-1">
+<<<<<<< HEAD
                 <p className="text-xs text-muted-foreground">Total Petrol Sale</p>
                 <p className="text-lg font-bold">₹{totalPetrolSale.toFixed(2)}</p>
               </div>
@@ -299,6 +401,14 @@ const Index = () => {
               <div className="space-y-1">
                 <p className="text-xs text-muted-foreground">Total Unpaid</p>
                 <p className="text-lg font-bold">₹{totalUnpaid.toFixed(2)}</p>
+=======
+                <p className="text-xs text-muted-foreground">Cash IN</p>
+                <p className="text-lg font-bold text-success">₹{totalCashIn.toFixed(2)}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">Cash OUT</p>
+                <p className="text-lg font-bold text-destructive">₹{totalCashOut.toFixed(2)}</p>
+>>>>>>> origin/main
               </div>
               <div className="space-y-1 col-span-2 md:col-span-3 lg:col-span-1">
                 <p className="text-xs text-muted-foreground">Net Total</p>
@@ -312,6 +422,7 @@ const Index = () => {
             </div>
           </CardContent>
         </Card>
+<<<<<<< HEAD
 
         {/* Note Box */}
         <div className="mt-4">
@@ -322,6 +433,8 @@ const Index = () => {
             onChange={(e) => setNotes(e.target.value)}
           />
         </div>
+=======
+>>>>>>> origin/main
       </div>
     </div>
   );

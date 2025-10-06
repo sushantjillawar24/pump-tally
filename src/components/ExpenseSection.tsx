@@ -13,7 +13,10 @@ interface ExpenseSectionProps {
   petrolTesting: ExpenseItem;
   powerPetrolTesting: ExpenseItem;
   dieselTesting: ExpenseItem;
+<<<<<<< HEAD
   tankerDiesel: ExpenseItem;
+=======
+>>>>>>> origin/main
   onUpdate: (field: string, type: 'price' | 'quantity', value: string) => void;
 }
 
@@ -21,7 +24,10 @@ export const ExpenseSection = ({
   petrolTesting, 
   powerPetrolTesting, 
   dieselTesting, 
+<<<<<<< HEAD
   tankerDiesel,
+=======
+>>>>>>> origin/main
   onUpdate 
 }: ExpenseSectionProps) => {
   return (
@@ -132,6 +138,7 @@ export const ExpenseSection = ({
           </div>
         </div>
 
+<<<<<<< HEAD
         {/* Tanker Diesel */}
         <div className="space-y-2">
           <Label className="text-sm font-semibold">Tanker Diesel</Label>
@@ -165,12 +172,18 @@ export const ExpenseSection = ({
           </div>
         </div>
 
+=======
+>>>>>>> origin/main
         {/* Section Total */}
         <div className="pt-2 border-t">
           <div className="flex justify-between items-center">
             <Label className="text-sm font-semibold">Total Expenses:</Label>
             <div className="text-lg font-bold text-destructive">
+<<<<<<< HEAD
               ₹{(petrolTesting.total + powerPetrolTesting.total + dieselTesting.total + tankerDiesel.total).toFixed(2)}
+=======
+              ₹{(petrolTesting.total + powerPetrolTesting.total + dieselTesting.total).toFixed(2)}
+>>>>>>> origin/main
             </div>
           </div>
         </div>
