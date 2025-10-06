@@ -27,7 +27,7 @@ export const ExpenseSection = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <TrendingDown className="h-5 w-5 text-destructive" />
-          Section C: Expense
+          Expense
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
