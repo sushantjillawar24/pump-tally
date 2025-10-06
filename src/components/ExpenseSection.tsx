@@ -23,7 +23,7 @@ export const ExpenseSection = ({
   onUpdate 
 }: ExpenseSectionProps) => {
   return (
-    <Card className="h-full">
+    <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <TrendingDown className="h-5 w-5 text-destructive" />
