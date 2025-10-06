@@ -118,7 +118,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-6 lg:p-8">
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="max-w-7xl mx-auto space-y-4">
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
@@ -145,9 +145,9 @@ const Index = () => {
         </div>
 
         {/* Main Grid */}
-        <div className="grid lg:grid-cols-2 gap-6">
+        <div className="grid lg:grid-cols-2 gap-4">
           {/* Left Column */}
-          <div className="space-y-6">
+          <div className="space-y-4">
             <SalesSection
               petrol={sales.petrol}
               powerPetrol={sales.powerPetrol}
@@ -163,7 +163,7 @@ const Index = () => {
           </div>
 
           {/* Right Column */}
-          <div className="space-y-6">
+          <div className="space-y-4">
             <EarningsSection
               phonePayNight={earnings.phonePayNight}
               phonePayDay={earnings.phonePayDay}
