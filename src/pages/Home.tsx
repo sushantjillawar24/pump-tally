@@ -22,13 +22,18 @@ const Home = () => {
             Logout
           </Button>
         </div>
-        <div className="text-center space-y-2">
-          <h1 className="text-4xl md:text-5xl font-bold text-foreground">
-            Petrol Pump Management
+        <div className="text-center space-y-3">
+          <img
+            src="/images/petrol-logo.png"
+            alt="HP Petroleum Logo"
+            className="mx-auto h-14 md:h-16"
+          />
+          <h1
+            className="text-3xl md:text-4xl font-medium text-foreground tracking-normal"
+            style={{ fontFamily: 'Poppins, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\"' }}
+          >
+            Gandhewar Petroleum Management
           </h1>
-          <p className="text-lg text-muted-foreground">
-            Choose an option to get started
-          </p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">
@@ -40,12 +45,15 @@ const Home = () => {
               <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center">
                 <Calculator className="h-10 w-10 text-primary" />
               </div>
-              <h2 className="text-2xl font-semibold">Tally</h2>
+              <h2 className="text-2xl font-semibold">Dashboard</h2>
               <p className="text-muted-foreground">
                 Track daily sales, expenses, and manage transactions
               </p>
-              <Button size="lg" className="mt-4">
-                Open Tally
+              <Button
+                size="lg"
+                className="mt-4 w-full md:w-auto rounded-lg text-base px-6 py-5 bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+              >
+                Dashboard
               </Button>
             </CardContent>
           </Card>
@@ -62,7 +70,10 @@ const Home = () => {
               <p className="text-muted-foreground">
                 View analytics, charts, and business insights
               </p>
-              <Button size="lg" variant="secondary" className="mt-4">
+              <Button
+                size="lg"
+                className="mt-4 w-full md:w-auto rounded-lg text-base px-6 py-5 bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+              >
                 View Insights
               </Button>
             </CardContent>
