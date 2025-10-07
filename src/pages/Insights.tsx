@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LineChart, Line } from "recharts";
+import { NavigationBar } from "@/components/NavigationBar";
 
 const Insights = () => {
   const navigate = useNavigate();
@@ -44,10 +45,11 @@ const Insights = () => {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Business Insights</h1>
-              <p className="text-muted-foreground mt-1">Analytics and performance overview</p>
-            </div>
+            <h1 className="text-3xl font-bold text-foreground">Business Insights</h1>
+            <p className="text-muted-foreground mt-1">Analytics and performance overview</p>
           </div>
+          </div>
+          <NavigationBar />
         </div>
 
         {/* Summary Cards */}

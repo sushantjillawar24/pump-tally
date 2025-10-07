@@ -56,7 +56,7 @@ export const ReadingsCard = ({ readings, onUpdate }: ReadingsCardProps) => {
   );
 
   return (
-    <Card>
+    <Card className="border-l-4" style={{ borderLeftColor: 'hsl(var(--card-readings))' }}>
       <CardHeader>
         <CardTitle>Readings</CardTitle>
       </CardHeader>

@@ -19,7 +19,7 @@ interface UnpaidAmountCardProps {
 
 export const UnpaidAmountCard = ({ entries, onAdd, onRemove, onUpdate }: UnpaidAmountCardProps) => {
   return (
-    <Card>
+    <Card className="border-l-4" style={{ borderLeftColor: 'hsl(var(--card-unpaid))' }}>
       <CardHeader>
         <CardTitle>Unpaid Amount</CardTitle>
       </CardHeader>

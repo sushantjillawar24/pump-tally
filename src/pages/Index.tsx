@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { Calendar } from "lucide-react";
+import { NavigationBar } from "@/components/NavigationBar";
 import { Button } from "@/components/ui/button";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -156,8 +157,12 @@ const Index = () => {
     <div className="min-h-screen bg-background p-4 md:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
+        <div className="flex flex-col gap-4">
+          <div className="flex justify-end">
+            <NavigationBar />
+          </div>
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
             <h1 className="text-3xl font-bold text-foreground">Petrol Pump Daily Expense</h1>
             <p className="text-muted-foreground mt-1">Track your daily transactions and expenses</p>
           </div>
@@ -178,6 +183,7 @@ const Index = () => {
               />
             </PopoverContent>
           </Popover>
+          </div>
         </div>
 
         {/* Main Grid */}
@@ -251,7 +257,7 @@ const Index = () => {
           <ReadingsCard readings={readings} onUpdate={updateReading} />
         </div>
         {/* Summary Card */}
-        <Card className="bg-gradient-to-br from-primary/5 to-accent/5 border-2">
+        <Card className="bg-gradient-to-br from-primary/5 to-accent/5 border border-border">
           <CardContent className="p-6">
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               <div className="space-y-1">
@@ -315,7 +321,7 @@ const Index = () => {
         <div className="mt-4">
           <textarea
             placeholder="Notes..."
-            className="w-full h-32 rounded-md border px-3 py-2 text-sm"
+            className="w-full h-32 rounded-md border border-border px-3 py-2 text-sm"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
           />

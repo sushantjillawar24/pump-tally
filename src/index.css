@@ -45,6 +45,8 @@ All colors MUST be HSL.
     --card-earnings: 142 71% 50%;
     --card-expense: 25 95% 53%;
     --card-employee: 280 65% 60%;
+    --card-unpaid: 45 93% 47%;
+    --card-readings: 280 89% 60%;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5% 26%;
@@ -92,6 +94,8 @@ All colors MUST be HSL.
     --card-earnings: 142 71% 50%;
     --card-expense: 25 95% 53%;
     --card-employee: 280 65% 60%;
+    --card-unpaid: 45 93% 47%;
+    --card-readings: 280 89% 60%;
     
     --sidebar-background: 240 6% 10%;
     --sidebar-foreground: 240 5% 96%;
