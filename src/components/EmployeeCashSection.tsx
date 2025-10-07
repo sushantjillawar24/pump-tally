@@ -12,7 +12,6 @@ interface CashEntry {
 }
 
 interface EmployeeCashSectionProps {
-<<<<<<< HEAD
   shortEntries: CashEntry[];
   borrowEntries: CashEntry[];
   receivedEntries: CashEntry[];
@@ -27,35 +26,16 @@ export const EmployeeCashSection = ({
   borrowEntries,
   receivedEntries,
   rewardEntries,
-=======
-  cashIn: CashEntry[];
-  cashOut: CashEntry[];
-  onAddEntry: (type: 'cashIn' | 'cashOut') => void;
-  onRemoveEntry: (type: 'cashIn' | 'cashOut', id: string) => void;
-  onUpdateEntry: (type: 'cashIn' | 'cashOut', id: string, field: 'name' | 'amount', value: string) => void;
-}
-
-export const EmployeeCashSection = ({
-  cashIn,
-  cashOut,
->>>>>>> origin/main
   onAddEntry,
   onRemoveEntry,
   onUpdateEntry,
 }: EmployeeCashSectionProps) => {
-<<<<<<< HEAD
   const shortTotal = shortEntries.reduce((sum, entry) => sum + parseFloat(entry.amount || '0'), 0);
   const borrowTotal = borrowEntries.reduce((sum, entry) => sum + parseFloat(entry.amount || '0'), 0);
   const receivedTotal = receivedEntries.reduce((sum, entry) => sum + parseFloat(entry.amount || '0'), 0);
   const rewardTotal = rewardEntries.reduce((sum, entry) => sum + parseFloat(entry.amount || '0'), 0);
 
   const renderEntries = (entries: CashEntry[], type: 'short' | 'borrow' | 'received' | 'reward') => (
-=======
-  const cashInTotal = cashIn.reduce((sum, entry) => sum + parseFloat(entry.amount || '0'), 0);
-  const cashOutTotal = cashOut.reduce((sum, entry) => sum + parseFloat(entry.amount || '0'), 0);
-
-  const renderEntries = (entries: CashEntry[], type: 'cashIn' | 'cashOut') => (
->>>>>>> origin/main
     <div className="space-y-3">
       {entries.map((entry) => (
         <div key={entry.id} className="flex gap-2">
@@ -103,7 +83,6 @@ export const EmployeeCashSection = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Users className="h-5 w-5 text-accent" />
-<<<<<<< HEAD
           Employee Cash
         </CardTitle>
       </CardHeader>
@@ -152,38 +131,6 @@ export const EmployeeCashSection = ({
               <div className="flex justify-between items-center">
                 <Label className="text-sm font-semibold">Total Reward:</Label>
                 <div className="text-lg font-bold text-success">₹{rewardTotal.toFixed(2)}</div>
-=======
-          Employee Cash IN/OUT
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Tabs defaultValue="cashIn" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="cashIn">Cash IN</TabsTrigger>
-            <TabsTrigger value="cashOut">Cash OUT</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="cashIn" className="space-y-4 mt-4">
-            {renderEntries(cashIn, 'cashIn')}
-            <div className="pt-2 border-t">
-              <div className="flex justify-between items-center">
-                <Label className="text-sm font-semibold">Total Cash IN:</Label>
-                <div className="text-lg font-bold text-success">
-                  ₹{cashInTotal.toFixed(2)}
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="cashOut" className="space-y-4 mt-4">
-            {renderEntries(cashOut, 'cashOut')}
-            <div className="pt-2 border-t">
-              <div className="flex justify-between items-center">
-                <Label className="text-sm font-semibold">Total Cash OUT:</Label>
-                <div className="text-lg font-bold text-destructive">
-                  ₹{cashOutTotal.toFixed(2)}
-                </div>
->>>>>>> origin/main
               </div>
             </div>
           </TabsContent>
