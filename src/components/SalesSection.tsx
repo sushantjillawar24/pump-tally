@@ -19,7 +19,7 @@ interface SalesSectionProps {
 
 export const SalesSection = ({ petrol, powerPetrol, diesel, otherAmount, onUpdate }: SalesSectionProps) => {
   return (
-    <Card>
+    <Card className="border-l-4 border-l-[hsl(var(--card-sales))]">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Calculator className="h-5 w-5 text-primary" />

@@ -34,7 +34,7 @@ export const EarningsSection = ({
     parseFloat(other || '0');
 
   return (
-    <Card>
+    <Card className="border-l-4 border-l-[hsl(var(--card-earnings))]">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Wallet className="h-5 w-5 text-success" />

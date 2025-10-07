@@ -41,6 +41,11 @@ All colors MUST be HSL.
 
     --radius: 0.75rem;
 
+    --card-sales: 211 100% 50%;
+    --card-earnings: 142 71% 50%;
+    --card-expense: 25 95% 53%;
+    --card-employee: 280 65% 60%;
+
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5% 26%;
     --sidebar-primary: 240 6% 10%;
@@ -82,6 +87,11 @@ All colors MUST be HSL.
     --border: 217 33% 18%;
     --input: 217 33% 18%;
     --ring: 211 100% 50%;
+
+    --card-sales: 211 100% 50%;
+    --card-earnings: 142 71% 50%;
+    --card-expense: 25 95% 53%;
+    --card-employee: 280 65% 60%;
     
     --sidebar-background: 240 6% 10%;
     --sidebar-foreground: 240 5% 96%;

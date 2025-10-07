@@ -79,7 +79,7 @@ export const EmployeeCashSection = ({
   );
 
   return (
-    <Card>
+    <Card className="border-l-4 border-l-[hsl(var(--card-employee))]">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Users className="h-5 w-5 text-accent" />
@@ -130,7 +130,7 @@ export const EmployeeCashSection = ({
             <div className="pt-2 border-t">
               <div className="flex justify-between items-center">
                 <Label className="text-sm font-semibold">Total Reward:</Label>
-                <div className="text-lg font-bold text-success">₹{rewardTotal.toFixed(2)}</div>
+                <div className="text-lg font-bold text-destructive">₹{rewardTotal.toFixed(2)}</div>
               </div>
             </div>
           </TabsContent>

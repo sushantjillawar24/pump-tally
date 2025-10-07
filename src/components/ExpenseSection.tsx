@@ -25,7 +25,7 @@ export const ExpenseSection = ({
   onUpdate 
 }: ExpenseSectionProps) => {
   return (
-    <Card>
+    <Card className="border-l-4 border-l-[hsl(var(--card-expense))]">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <TrendingDown className="h-5 w-5 text-destructive" />
