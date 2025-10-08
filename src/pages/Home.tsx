@@ -39,7 +39,7 @@ const Home = () => {
         <div className="grid md:grid-cols-2 gap-6">
           <Card 
             className="cursor-pointer transition-all hover:shadow-lg hover:scale-105 border-primary/30 hover:border-primary"
-            onClick={() => navigate("/tally")}
+            onClick={() => navigate("/dashboard")}
           >
             <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
               <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center">
