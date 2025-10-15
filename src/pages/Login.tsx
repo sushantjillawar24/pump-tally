@@ -26,13 +26,13 @@ const Login = () => {
     }
 
     setIsLoading(true);
-    const success = await login(email, password);
+    const result = await login(email, password);
     setIsLoading(false);
 
-    if (success) {
+    if (result.success) {
       navigate('/');
     } else {
-      setError('Invalid credentials');
+      setError(result.error || 'Invalid credentials. Please check with your administrator.');
     }
   };
 
@@ -46,10 +46,10 @@ const Login = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Alert className="mb-4 border-yellow-500/50 bg-yellow-500/10">
-            <AlertCircle className="h-4 w-4 text-yellow-500" />
-            <AlertDescription className="text-sm text-yellow-600 dark:text-yellow-400">
-              Demo mode: Any email and password will work
+          <Alert className="mb-4 border-blue-500/50 bg-blue-500/10">
+            <AlertCircle className="h-4 w-4 text-blue-500" />
+            <AlertDescription className="text-sm text-blue-600 dark:text-blue-400">
+              Only pre-approved users can login. Contact your administrator for access.
             </AlertDescription>
           </Alert>
           

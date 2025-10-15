@@ -14,13 +14,28 @@ import { UnpaidAmountCard } from "@/components/UnpaidAmountCard";
 import { ReadingsCard } from "../components/ReadingsCard";
 import { cn } from "@/lib/utils";
 
-interface SaleItem {
+interface SaleEntry {
+  id: string;
+  productName: string;
   price: string;
   quantity: string;
   total: number;
 }
 
-// Earnings are single-amount entries per mode
+interface EarningEntry {
+  id: string;
+  modeName: string;
+  amount: string;
+}
+
+interface ExpenseEntry {
+  id: string;
+  itemName: string;
+  price: string;
+  quantity: string;
+  total: number;
+}
+
 interface CashEntry {
   id: string;
   name: string;
@@ -30,32 +45,20 @@ interface CashEntry {
 const Index = () => {
   const [date, setDate] = useState<Date>(new Date());
 
-  // Sales state
-  const [sales, setSales] = useState({
-    petrol: { price: '', quantity: '', total: 0 },
-    powerPetrol: { price: '', quantity: '', total: 0 },
-    diesel: { price: '', quantity: '', total: 0 },
-    other: '',
-  });
+  // Sales state - dynamic entries
+  const [salesEntries, setSalesEntries] = useState<SaleEntry[]>([
+    { id: '1', productName: '', price: '', quantity: '', total: 0 }
+  ]);
 
-  // Earnings state (single amount per mode)
-  const [earnings, setEarnings] = useState({
-    cash: '',
-    phonePayNight: '',
-    phonePayDay: '',
-    cardSwipe: '',
-    hpPaySwipe: '',
-    otp: '',
-    other: '',
-  });
+  // Earnings state - dynamic entries
+  const [earningsEntries, setEarningsEntries] = useState<EarningEntry[]>([
+    { id: '1', modeName: '', amount: '' }
+  ]);
 
-  // Expense state
-  const [expenses, setExpenses] = useState({
-    petrolTesting: { price: '', quantity: '', total: 0 },
-    powerPetrolTesting: { price: '', quantity: '', total: 0 },
-    dieselTesting: { price: '', quantity: '', total: 0 },
-    tankerDiesel: { price: '', quantity: '', total: 0 },
-  });
+  // Expense state - dynamic entries
+  const [expenseEntries, setExpenseEntries] = useState<ExpenseEntry[]>([
+    { id: '1', itemName: '', price: '', quantity: '', total: 0 }
+  ]);
 
   // Employee cash state
   const [shortEntries, setShortEntries] = useState<CashEntry[]>([{ id: '1', name: '', amount: '' }]);
@@ -86,48 +89,67 @@ const Index = () => {
   // Notes
   const [notes, setNotes] = useState("");
 
-  // sanitize number-like strings (allows only digits and a single dot)
-  const sanitizeNumericString = (raw: string) => {
-    if (raw === "") return "";
-    const cleaned = raw.replace(/[^0-9.]/g, "");
-    const parts = cleaned.split(".");
-    return parts.length > 1 ? parts[0] + "." + parts.slice(1).join("").replace(/\./g, "") : cleaned;
+  // Sales handlers
+  const handleAddSale = () => {
+    setSalesEntries(prev => [...prev, { id: Date.now().toString(), productName: '', price: '', quantity: '', total: 0 }]);
   };
 
-  const updateSale = (field: string, type: 'price' | 'quantity', value: string) => {
-    setSales(prev => {
-      if (field === 'other') {
-        return { ...prev, other: sanitizeNumericString(value) };
+  const handleRemoveSale = (id: string) => {
+    setSalesEntries(prev => prev.filter(e => e.id !== id));
+  };
+
+  const handleUpdateSale = (id: string, field: 'productName' | 'price' | 'quantity', value: string) => {
+    setSalesEntries(prev => prev.map(entry => {
+      if (entry.id === id) {
+        const updated = { ...entry, [field]: value };
+        if (field === 'price' || field === 'quantity') {
+          updated.total = parseFloat(updated.price || '0') * parseFloat(updated.quantity || '0');
+        }
+        return updated;
       }
-      const item = prev[field as keyof typeof prev] as SaleItem;
-      const updated = { ...item, [type]: value };
-      updated.total = parseFloat(updated.price || '0') * parseFloat(updated.quantity || '0');
-      return { ...prev, [field]: updated };
-    });
+      return entry;
+    }));
   };
 
-  const updateEarning = (field: keyof typeof earnings, value: string) => {
-    setEarnings(prev => ({ ...prev, [field]: value }));
+  // Earnings handlers
+  const handleAddEarning = () => {
+    setEarningsEntries(prev => [...prev, { id: Date.now().toString(), modeName: '', amount: '' }]);
   };
 
-  const updateExpense = (field: string, type: 'price' | 'quantity', value: string) => {
-    setExpenses(prev => {
-      const item = prev[field as keyof typeof prev] as SaleItem;
-      const updated = { ...item, [type]: value };
-      updated.total = parseFloat(updated.price || '0') * parseFloat(updated.quantity || '0');
-      return { ...prev, [field]: updated };
-    });
+  const handleRemoveEarning = (id: string) => {
+    setEarningsEntries(prev => prev.filter(e => e.id !== id));
   };
 
-  // Employee cash handlers are provided inline where used
+  const handleUpdateEarning = (id: string, field: 'modeName' | 'amount', value: string) => {
+    setEarningsEntries(prev => prev.map(entry => entry.id === id ? { ...entry, [field]: value } : entry));
+  };
+
+  // Expense handlers
+  const handleAddExpense = () => {
+    setExpenseEntries(prev => [...prev, { id: Date.now().toString(), itemName: '', price: '', quantity: '', total: 0 }]);
+  };
+
+  const handleRemoveExpense = (id: string) => {
+    setExpenseEntries(prev => prev.filter(e => e.id !== id));
+  };
+
+  const handleUpdateExpense = (id: string, field: 'itemName' | 'price' | 'quantity', value: string) => {
+    setExpenseEntries(prev => prev.map(entry => {
+      if (entry.id === id) {
+        const updated = { ...entry, [field]: value };
+        if (field === 'price' || field === 'quantity') {
+          updated.total = parseFloat(updated.price || '0') * parseFloat(updated.quantity || '0');
+        }
+        return updated;
+      }
+      return entry;
+    }));
+  };
 
   // Calculate totals
-  const totalPetrolSale = sales.petrol.total;
-  const totalPowerPetrolSale = sales.powerPetrol.total;
-  const totalDieselSale = sales.diesel.total;
-  const totalSales = totalPetrolSale + totalPowerPetrolSale + totalDieselSale + parseFloat(sales.other || '0');
-  const totalEarnings = Object.values(earnings).reduce((sum, val) => sum + parseFloat(val || '0'), 0);
-  const totalExpenses = expenses.petrolTesting.total + expenses.powerPetrolTesting.total + expenses.dieselTesting.total + expenses.tankerDiesel.total;
+  const totalSales = salesEntries.reduce((sum, entry) => sum + entry.total, 0);
+  const totalEarnings = earningsEntries.reduce((sum, entry) => sum + parseFloat(entry.amount || '0'), 0);
+  const totalExpenses = expenseEntries.reduce((sum, entry) => sum + entry.total, 0);
   const totalShort = shortEntries.reduce((sum, entry) => sum + parseFloat(entry.amount || '0'), 0);
   const totalBorrow = borrowEntries.reduce((sum, entry) => sum + parseFloat(entry.amount || '0'), 0);
   const totalReceived = receivedEntries.reduce((sum, entry) => sum + parseFloat(entry.amount || '0'), 0);
@@ -137,9 +159,9 @@ const Index = () => {
 
   // Reset all values when date changes (temporary logic while no DB)
   useEffect(() => {
-    setSales({ petrol: { price: '', quantity: '', total: 0 }, powerPetrol: { price: '', quantity: '', total: 0 }, diesel: { price: '', quantity: '', total: 0 }, other: '' });
-    setEarnings({ cash: '', phonePayNight: '', phonePayDay: '', cardSwipe: '', hpPaySwipe: '', otp: '', other: '' });
-    setExpenses({ petrolTesting: { price: '', quantity: '', total: 0 }, powerPetrolTesting: { price: '', quantity: '', total: 0 }, dieselTesting: { price: '', quantity: '', total: 0 }, tankerDiesel: { price: '', quantity: '', total: 0 } });
+    setSalesEntries([{ id: '1', productName: '', price: '', quantity: '', total: 0 }]);
+    setEarningsEntries([{ id: '1', modeName: '', amount: '' }]);
+    setExpenseEntries([{ id: '1', itemName: '', price: '', quantity: '', total: 0 }]);
     setShortEntries([{ id: '1', name: '', amount: '' }]);
     setBorrowEntries([{ id: '1', name: '', amount: '' }]);
     setReceivedEntries([{ id: '1', name: '', amount: '' }]);
@@ -191,32 +213,26 @@ const Index = () => {
           {/* Left Column */}
           <div className="space-y-4">
             <SalesSection
-              petrol={sales.petrol}
-              powerPetrol={sales.powerPetrol}
-              diesel={sales.diesel}
-              otherAmount={sales.other}
-              onUpdate={updateSale}
+              entries={salesEntries}
+              onAdd={handleAddSale}
+              onRemove={handleRemoveSale}
+              onUpdate={handleUpdateSale}
             />
             <ExpenseSection
-              petrolTesting={expenses.petrolTesting}
-              powerPetrolTesting={expenses.powerPetrolTesting}
-              dieselTesting={expenses.dieselTesting}
-              tankerDiesel={expenses.tankerDiesel}
-              onUpdate={updateExpense}
+              entries={expenseEntries}
+              onAdd={handleAddExpense}
+              onRemove={handleRemoveExpense}
+              onUpdate={handleUpdateExpense}
             />
           </div>
 
           {/* Right Column */}
           <div className="space-y-4">
             <EarningsSection
-              cash={earnings.cash}
-              phonePayNight={earnings.phonePayNight}
-              phonePayDay={earnings.phonePayDay}
-              cardSwipe={earnings.cardSwipe}
-              hpPaySwipe={earnings.hpPaySwipe}
-              otp={earnings.otp}
-              other={earnings.other}
-              onUpdate={updateEarning}
+              entries={earningsEntries}
+              onAdd={handleAddEarning}
+              onRemove={handleRemoveEarning}
+              onUpdate={handleUpdateEarning}
             />
             <EmployeeCashSection
               shortEntries={shortEntries}
@@ -271,18 +287,6 @@ const Index = () => {
               <div className="space-y-1">
                 <p className="text-xs text-muted-foreground">Total Expenses</p>
                 <p className="text-lg font-bold text-destructive">₹{totalExpenses.toFixed(2)}</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Total Petrol Sale</p>
-                <p className="text-lg font-bold">₹{totalPetrolSale.toFixed(2)}</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Total Power Petrol Sale</p>
-                <p className="text-lg font-bold">₹{totalPowerPetrolSale.toFixed(2)}</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Total Diesel Sale</p>
-                <p className="text-lg font-bold">₹{totalDieselSale.toFixed(2)}</p>
               </div>
               <div className="space-y-1">
                 <p className="text-xs text-muted-foreground">Short</p>

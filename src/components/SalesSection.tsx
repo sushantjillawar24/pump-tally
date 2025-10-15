@@ -1,23 +1,27 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Calculator } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Calculator, Plus, MinusCircle } from "lucide-react";
 
-interface SaleItem {
+interface SaleEntry {
+  id: string;
+  productName: string;
   price: string;
   quantity: string;
   total: number;
 }
 
 interface SalesSectionProps {
-  petrol: SaleItem;
-  powerPetrol: SaleItem;
-  diesel: SaleItem;
-  otherAmount?: string;
-  onUpdate: (field: string, type: 'price' | 'quantity', value: string) => void;
+  entries: SaleEntry[];
+  onAdd: () => void;
+  onRemove: (id: string) => void;
+  onUpdate: (id: string, field: 'productName' | 'price' | 'quantity', value: string) => void;
 }
 
-export const SalesSection = ({ petrol, powerPetrol, diesel, otherAmount, onUpdate }: SalesSectionProps) => {
+export const SalesSection = ({ entries, onAdd, onRemove, onUpdate }: SalesSectionProps) => {
+  const total = entries.reduce((sum, entry) => sum + entry.total, 0);
+
   return (
     <Card className="border-l-4 border-l-[hsl(var(--card-sales))]">
       <CardHeader>
@@ -27,123 +31,60 @@ export const SalesSection = ({ petrol, powerPetrol, diesel, otherAmount, onUpdat
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Petrol Sale */}
-        <div className="space-y-2">
-          <Label className="text-sm font-semibold">Petrol Sale</Label>
-          <div className="grid grid-cols-3 gap-2">
-            <div>
-              <Label className="text-xs text-muted-foreground">Price</Label>
+        {entries.map((entry) => (
+          <div key={entry.id} className="space-y-2 p-3 border rounded-md">
+            <div className="flex items-center gap-2 mb-2">
               <Input
-                type="number"
-                placeholder="0.00"
-                value={petrol.price}
-                onChange={(e) => onUpdate('petrol', 'price', e.target.value)}
-                className="h-9"
+                placeholder="Product name (e.g., Petrol, Diesel)"
+                value={entry.productName}
+                onChange={(e) => onUpdate(entry.id, 'productName', e.target.value)}
+                className="h-9 flex-1 font-semibold"
               />
+              <Button variant="ghost" size="icon" onClick={() => onRemove(entry.id)}>
+                <MinusCircle className="h-5 w-5" />
+              </Button>
             </div>
-            <div>
-              <Label className="text-xs text-muted-foreground">Quantity</Label>
-              <Input
-                type="number"
-                placeholder="0"
-                value={petrol.quantity}
-                onChange={(e) => onUpdate('petrol', 'quantity', e.target.value)}
-                className="h-9"
-              />
-            </div>
-            <div>
-              <Label className="text-xs text-muted-foreground">Total</Label>
-              <div className="h-9 rounded-md border bg-muted px-3 py-2 text-sm font-semibold">
-                ₹{petrol.total.toFixed(2)}
+            <div className="grid grid-cols-3 gap-2">
+              <div>
+                <Label className="text-xs text-muted-foreground">Price</Label>
+                <Input
+                  type="number"
+                  placeholder="0.00"
+                  value={entry.price}
+                  onChange={(e) => onUpdate(entry.id, 'price', e.target.value)}
+                  className="h-9"
+                />
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">Quantity</Label>
+                <Input
+                  type="number"
+                  placeholder="0"
+                  value={entry.quantity}
+                  onChange={(e) => onUpdate(entry.id, 'quantity', e.target.value)}
+                  className="h-9"
+                />
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">Total</Label>
+                <div className="h-9 rounded-md border bg-muted px-3 py-2 text-sm font-semibold">
+                  ₹{entry.total.toFixed(2)}
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        ))}
+        
+        <Button variant="outline" size="sm" className="w-full" onClick={onAdd}>
+          <Plus className="h-4 w-4 mr-2" />
+          Add Sale Entry
+        </Button>
 
-        {/* Power Petrol Sale */}
-        <div className="space-y-2">
-          <Label className="text-sm font-semibold">Power Petrol Sale</Label>
-          <div className="grid grid-cols-3 gap-2">
-            <div>
-              <Label className="text-xs text-muted-foreground">Price</Label>
-              <Input
-                type="number"
-                placeholder="0.00"
-                value={powerPetrol.price}
-                onChange={(e) => onUpdate('powerPetrol', 'price', e.target.value)}
-                className="h-9"
-              />
-            </div>
-            <div>
-              <Label className="text-xs text-muted-foreground">Quantity</Label>
-              <Input
-                type="number"
-                placeholder="0"
-                value={powerPetrol.quantity}
-                onChange={(e) => onUpdate('powerPetrol', 'quantity', e.target.value)}
-                className="h-9"
-              />
-            </div>
-            <div>
-              <Label className="text-xs text-muted-foreground">Total</Label>
-              <div className="h-9 rounded-md border bg-muted px-3 py-2 text-sm font-semibold">
-                ₹{powerPetrol.total.toFixed(2)}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Diesel Sale */}
-        <div className="space-y-2">
-          <Label className="text-sm font-semibold">Diesel Sale</Label>
-          <div className="grid grid-cols-3 gap-2">
-            <div>
-              <Label className="text-xs text-muted-foreground">Price</Label>
-              <Input
-                type="number"
-                placeholder="0.00"
-                value={diesel.price}
-                onChange={(e) => onUpdate('diesel', 'price', e.target.value)}
-                className="h-9"
-              />
-            </div>
-            <div>
-              <Label className="text-xs text-muted-foreground">Quantity</Label>
-              <Input
-                type="number"
-                placeholder="0"
-                value={diesel.quantity}
-                onChange={(e) => onUpdate('diesel', 'quantity', e.target.value)}
-                className="h-9"
-              />
-            </div>
-            <div>
-              <Label className="text-xs text-muted-foreground">Total</Label>
-              <div className="h-9 rounded-md border bg-muted px-3 py-2 text-sm font-semibold">
-                ₹{diesel.total.toFixed(2)}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Other */}
-        <div className="space-y-2">
-          <Label className="text-sm font-semibold">Other</Label>
-          <Input
-            type="number"
-            placeholder="0.00"
-            value={otherAmount || ''}
-            onChange={(e) => onUpdate('other', 'price', e.target.value)}
-            className="h-9"
-          />
-        </div>
         {/* Section Total */}
         <div className="pt-2 border-t">
           <div className="flex justify-between items-center">
             <Label className="text-sm font-semibold">Total Sales:</Label>
-            <div className="text-lg font-bold text-primary">
-              ₹{(petrol.total + powerPetrol.total + diesel.total + parseFloat(otherAmount || '0')).toFixed(2)}
-            </div>
+            <div className="text-lg font-bold text-primary">₹{total.toFixed(2)}</div>
           </div>
         </div>
       </CardContent>

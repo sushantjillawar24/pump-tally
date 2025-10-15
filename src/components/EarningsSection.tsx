@@ -1,37 +1,24 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Wallet } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Wallet, Plus, MinusCircle } from "lucide-react";
 
-interface EarningsSectionProps {
-  cash: string;
-  phonePayNight: string;
-  phonePayDay: string;
-  cardSwipe: string;
-  hpPaySwipe: string;
-  otp: string;
-  other: string;
-  onUpdate: (field: keyof any, value: string) => void;
+interface EarningEntry {
+  id: string;
+  modeName: string;
+  amount: string;
 }
 
-export const EarningsSection = ({
-  cash,
-  phonePayNight,
-  phonePayDay,
-  cardSwipe,
-  hpPaySwipe,
-  otp,
-  other,
-  onUpdate,
-}: EarningsSectionProps) => {
-  const total =
-    parseFloat(cash || '0') +
-    parseFloat(phonePayNight || '0') +
-    parseFloat(phonePayDay || '0') +
-    parseFloat(cardSwipe || '0') +
-    parseFloat(hpPaySwipe || '0') +
-    parseFloat(otp || '0') +
-    parseFloat(other || '0');
+interface EarningsSectionProps {
+  entries: EarningEntry[];
+  onAdd: () => void;
+  onRemove: (id: string) => void;
+  onUpdate: (id: string, field: 'modeName' | 'amount', value: string) => void;
+}
+
+export const EarningsSection = ({ entries, onAdd, onRemove, onUpdate }: EarningsSectionProps) => {
+  const total = entries.reduce((sum, entry) => sum + parseFloat(entry.amount || '0'), 0);
 
   return (
     <Card className="border-l-4 border-l-[hsl(var(--card-earnings))]">
@@ -42,83 +29,33 @@ export const EarningsSection = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Cash first */}
-        <div className="space-y-2">
-          <Label className="text-sm font-semibold">Cash</Label>
-          <Input
-            type="number"
-            placeholder="0.00"
-            value={cash}
-            onChange={(e) => onUpdate('cash', e.target.value)}
-            className="h-9"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label className="text-sm font-semibold">Phone Pay (Night)</Label>
-          <Input
-            type="number"
-            placeholder="0.00"
-            value={phonePayNight}
-            onChange={(e) => onUpdate('phonePayNight', e.target.value)}
-            className="h-9"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label className="text-sm font-semibold">Phone Pay (Day)</Label>
-          <Input
-            type="number"
-            placeholder="0.00"
-            value={phonePayDay}
-            onChange={(e) => onUpdate('phonePayDay', e.target.value)}
-            className="h-9"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label className="text-sm font-semibold">Card Swipe</Label>
-          <Input
-            type="number"
-            placeholder="0.00"
-            value={cardSwipe}
-            onChange={(e) => onUpdate('cardSwipe', e.target.value)}
-            className="h-9"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label className="text-sm font-semibold">HP Pay Swipe</Label>
-          <Input
-            type="number"
-            placeholder="0.00"
-            value={hpPaySwipe}
-            onChange={(e) => onUpdate('hpPaySwipe', e.target.value)}
-            className="h-9"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label className="text-sm font-semibold">OTP</Label>
-          <Input
-            type="number"
-            placeholder="0.00"
-            value={otp}
-            onChange={(e) => onUpdate('otp', e.target.value)}
-            className="h-9"
-          />
-        </div>
-
-        {/* Other last */}
-        <div className="space-y-2">
-          <Label className="text-sm font-semibold">Other</Label>
-          <Input
-            type="number"
-            placeholder="0.00"
-            value={other}
-            onChange={(e) => onUpdate('other', e.target.value)}
-            className="h-9"
-          />
-        </div>
+        {entries.map((entry) => (
+          <div key={entry.id} className="flex items-center gap-2">
+            <Input
+              placeholder="Mode (e.g., Cash, PhonePay)"
+              value={entry.modeName}
+              onChange={(e) => onUpdate(entry.id, 'modeName', e.target.value)}
+              className="h-9 flex-1"
+            />
+            <div className="w-40">
+              <Input
+                type="number"
+                placeholder="Amount"
+                value={entry.amount}
+                onChange={(e) => onUpdate(entry.id, 'amount', e.target.value)}
+                className="h-9"
+              />
+            </div>
+            <Button variant="ghost" size="icon" onClick={() => onRemove(entry.id)}>
+              <MinusCircle className="h-5 w-5" />
+            </Button>
+          </div>
+        ))}
+        
+        <Button variant="outline" size="sm" className="w-full" onClick={onAdd}>
+          <Plus className="h-4 w-4 mr-2" />
+          Add Earning Entry
+        </Button>
 
         {/* Section Total */}
         <div className="pt-2 border-t">
