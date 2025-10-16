@@ -13,6 +13,9 @@ import { EmployeeCashSection } from "@/components/EmployeeCashSection";
 import { UnpaidAmountCard } from "@/components/UnpaidAmountCard";
 import { ReadingsCard } from "../components/ReadingsCard";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 interface SaleEntry {
   id: string;
@@ -43,7 +46,9 @@ interface CashEntry {
 }
 
 const Index = () => {
+  const { user } = useAuth();
   const [date, setDate] = useState<Date>(new Date());
+  const [isLoading, setIsLoading] = useState(false);
 
   // Sales state - dynamic entries
   const [salesEntries, setSalesEntries] = useState<SaleEntry[]>([
@@ -157,23 +162,279 @@ const Index = () => {
   const netTotal = totalSales + totalEarnings - totalExpenses + totalReceived + totalReward - totalShort - totalBorrow;
   const totalUnpaid = unpaid.reduce((sum, entry) => sum + parseFloat(entry.amount || '0'), 0);
 
-  // Reset all values when date changes (temporary logic while no DB)
+  // Load data from database when date changes
   useEffect(() => {
-    setSalesEntries([{ id: '1', productName: '', price: '', quantity: '', total: 0 }]);
-    setEarningsEntries([{ id: '1', modeName: '', amount: '' }]);
-    setExpenseEntries([{ id: '1', itemName: '', price: '', quantity: '', total: 0 }]);
-    setShortEntries([{ id: '1', name: '', amount: '' }]);
-    setBorrowEntries([{ id: '1', name: '', amount: '' }]);
-    setReceivedEntries([{ id: '1', name: '', amount: '' }]);
-    setRewardEntries([{ id: '1', name: '', amount: '' }]);
-    setUnpaid([{ id: '1', name: '', amount: '' }]);
-    setReadings({
-      petrol: { A1: { r1: '', r2: '' }, B1: { r1: '', r2: '' }, A2: { r1: '', r2: '' }, B2: { r1: '', r2: '' }, N2: { r1: '', r2: '' } },
-      powerPetrol: { A1: { r1: '', r2: '' }, B1: { r1: '', r2: '' } },
-      diesel: { A1: { r1: '', r2: '' }, B2: { r1: '', r2: '' }, A3: { r1: '', r2: '' }, B3: { r1: '', r2: '' }, N1: { r1: '', r2: '' } },
-    });
-    setNotes("");
-  }, [date]);
+    if (!user) return;
+    
+    const loadData = async () => {
+      setIsLoading(true);
+      const dateStr = format(date, 'yyyy-MM-dd');
+      
+      try {
+        // Load sales
+        const { data: salesData } = await supabase
+          .from('sales')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('date', dateStr);
+        
+        if (salesData && salesData.length > 0) {
+          setSalesEntries(salesData.map(s => ({
+            id: s.id,
+            productName: s.product_name,
+            price: s.price.toString(),
+            quantity: s.quantity.toString(),
+            total: s.total
+          })));
+        } else {
+          setSalesEntries([{ id: '1', productName: '', price: '', quantity: '', total: 0 }]);
+        }
+
+        // Load earnings
+        const { data: earningsData } = await supabase
+          .from('earnings')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('date', dateStr);
+        
+        if (earningsData && earningsData.length > 0) {
+          setEarningsEntries(earningsData.map(e => ({
+            id: e.id,
+            modeName: e.mode_name,
+            amount: e.amount.toString()
+          })));
+        } else {
+          setEarningsEntries([{ id: '1', modeName: '', amount: '' }]);
+        }
+
+        // Load expenses
+        const { data: expensesData } = await supabase
+          .from('expenses')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('date', dateStr);
+        
+        if (expensesData && expensesData.length > 0) {
+          setExpenseEntries(expensesData.map(e => ({
+            id: e.id,
+            itemName: e.item_name,
+            price: e.price.toString(),
+            quantity: e.quantity.toString(),
+            total: e.total
+          })));
+        } else {
+          setExpenseEntries([{ id: '1', itemName: '', price: '', quantity: '', total: 0 }]);
+        }
+
+        // Load employee cash
+        const { data: employeeCashData } = await supabase
+          .from('employee_cash')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('date', dateStr);
+        
+        const shorts = employeeCashData?.filter(e => e.type === 'short').map(e => ({ id: e.id, name: e.person_name, amount: e.amount.toString() })) || [];
+        const borrows = employeeCashData?.filter(e => e.type === 'borrow').map(e => ({ id: e.id, name: e.person_name, amount: e.amount.toString() })) || [];
+        const received = employeeCashData?.filter(e => e.type === 'received').map(e => ({ id: e.id, name: e.person_name, amount: e.amount.toString() })) || [];
+        const rewards = employeeCashData?.filter(e => e.type === 'reward').map(e => ({ id: e.id, name: e.person_name, amount: e.amount.toString() })) || [];
+        
+        setShortEntries(shorts.length > 0 ? shorts : [{ id: '1', name: '', amount: '' }]);
+        setBorrowEntries(borrows.length > 0 ? borrows : [{ id: '1', name: '', amount: '' }]);
+        setReceivedEntries(received.length > 0 ? received : [{ id: '1', name: '', amount: '' }]);
+        setRewardEntries(rewards.length > 0 ? rewards : [{ id: '1', name: '', amount: '' }]);
+
+        // Load unpaid amounts
+        const { data: unpaidData } = await supabase
+          .from('unpaid_amounts')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('date', dateStr);
+        
+        if (unpaidData && unpaidData.length > 0) {
+          setUnpaid(unpaidData.map(u => ({ id: u.id, name: u.person_name, amount: u.amount.toString() })));
+        } else {
+          setUnpaid([{ id: '1', name: '', amount: '' }]);
+        }
+
+        // Load readings
+        const { data: readingsData } = await supabase
+          .from('readings')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('date', dateStr);
+        
+        if (readingsData && readingsData.length > 0) {
+          const newReadings: any = {
+            petrol: { A1: { r1: '', r2: '' }, B1: { r1: '', r2: '' }, A2: { r1: '', r2: '' }, B2: { r1: '', r2: '' }, N2: { r1: '', r2: '' } },
+            powerPetrol: { A1: { r1: '', r2: '' }, B1: { r1: '', r2: '' } },
+            diesel: { A1: { r1: '', r2: '' }, B2: { r1: '', r2: '' }, A3: { r1: '', r2: '' }, B3: { r1: '', r2: '' }, N1: { r1: '', r2: '' } },
+          };
+          
+          readingsData.forEach(r => {
+            if (newReadings[r.fuel_type] && newReadings[r.fuel_type][r.nozzle]) {
+              newReadings[r.fuel_type][r.nozzle] = {
+                r1: r.reading1.toString(),
+                r2: r.reading2.toString()
+              };
+            }
+          });
+          setReadings(newReadings);
+        } else {
+          setReadings({
+            petrol: { A1: { r1: '', r2: '' }, B1: { r1: '', r2: '' }, A2: { r1: '', r2: '' }, B2: { r1: '', r2: '' }, N2: { r1: '', r2: '' } },
+            powerPetrol: { A1: { r1: '', r2: '' }, B1: { r1: '', r2: '' } },
+            diesel: { A1: { r1: '', r2: '' }, B2: { r1: '', r2: '' }, A3: { r1: '', r2: '' }, B3: { r1: '', r2: '' }, N1: { r1: '', r2: '' } },
+          });
+        }
+
+        // Load notes
+        const { data: notesData } = await supabase
+          .from('notes')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('date', dateStr)
+          .maybeSingle();
+        
+        setNotes(notesData?.content || '');
+      } catch (error) {
+        console.error('Error loading data:', error);
+        toast.error('Failed to load data');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
+  }, [date, user]);
+
+  // Auto-save function
+  const saveData = async () => {
+    if (!user) return;
+    
+    const dateStr = format(date, 'yyyy-MM-dd');
+    
+    try {
+      // Delete existing data for this date
+      await supabase.from('sales').delete().eq('user_id', user.id).eq('date', dateStr);
+      await supabase.from('earnings').delete().eq('user_id', user.id).eq('date', dateStr);
+      await supabase.from('expenses').delete().eq('user_id', user.id).eq('date', dateStr);
+      await supabase.from('employee_cash').delete().eq('user_id', user.id).eq('date', dateStr);
+      await supabase.from('unpaid_amounts').delete().eq('user_id', user.id).eq('date', dateStr);
+      await supabase.from('readings').delete().eq('user_id', user.id).eq('date', dateStr);
+      await supabase.from('notes').delete().eq('user_id', user.id).eq('date', dateStr);
+
+      // Insert sales
+      const validSales = salesEntries.filter(s => s.productName && s.price && s.quantity);
+      if (validSales.length > 0) {
+        await supabase.from('sales').insert(
+          validSales.map(s => ({
+            user_id: user.id,
+            date: dateStr,
+            product_name: s.productName,
+            price: parseFloat(s.price),
+            quantity: parseFloat(s.quantity),
+            total: s.total
+          }))
+        );
+      }
+
+      // Insert earnings
+      const validEarnings = earningsEntries.filter(e => e.modeName && e.amount);
+      if (validEarnings.length > 0) {
+        await supabase.from('earnings').insert(
+          validEarnings.map(e => ({
+            user_id: user.id,
+            date: dateStr,
+            mode_name: e.modeName,
+            amount: parseFloat(e.amount)
+          }))
+        );
+      }
+
+      // Insert expenses
+      const validExpenses = expenseEntries.filter(e => e.itemName && e.price && e.quantity);
+      if (validExpenses.length > 0) {
+        await supabase.from('expenses').insert(
+          validExpenses.map(e => ({
+            user_id: user.id,
+            date: dateStr,
+            item_name: e.itemName,
+            price: parseFloat(e.price),
+            quantity: parseFloat(e.quantity),
+            total: e.total
+          }))
+        );
+      }
+
+      // Insert employee cash
+      const allEmployeeCash = [
+        ...shortEntries.filter(e => e.name && e.amount).map(e => ({ ...e, type: 'short' as const })),
+        ...borrowEntries.filter(e => e.name && e.amount).map(e => ({ ...e, type: 'borrow' as const })),
+        ...receivedEntries.filter(e => e.name && e.amount).map(e => ({ ...e, type: 'received' as const })),
+        ...rewardEntries.filter(e => e.name && e.amount).map(e => ({ ...e, type: 'reward' as const }))
+      ];
+      
+      if (allEmployeeCash.length > 0) {
+        await supabase.from('employee_cash').insert(
+          allEmployeeCash.map(e => ({
+            user_id: user.id,
+            date: dateStr,
+            type: e.type,
+            person_name: e.name,
+            amount: parseFloat(e.amount)
+          }))
+        );
+      }
+
+      // Insert unpaid amounts
+      const validUnpaid = unpaid.filter(u => u.name && u.amount);
+      if (validUnpaid.length > 0) {
+        await supabase.from('unpaid_amounts').insert(
+          validUnpaid.map(u => ({
+            user_id: user.id,
+            date: dateStr,
+            person_name: u.name,
+            amount: parseFloat(u.amount)
+          }))
+        );
+      }
+
+      // Insert readings
+      const readingsList: any[] = [];
+      Object.entries(readings).forEach(([fuelType, nozzles]) => {
+        Object.entries(nozzles as any).forEach(([nozzle, values]: [string, any]) => {
+          if (values.r1 && values.r2) {
+            readingsList.push({
+              user_id: user.id,
+              date: dateStr,
+              fuel_type: fuelType,
+              nozzle: nozzle,
+              reading1: parseFloat(values.r1),
+              reading2: parseFloat(values.r2)
+            });
+          }
+        });
+      });
+      
+      if (readingsList.length > 0) {
+        await supabase.from('readings').insert(readingsList);
+      }
+
+      // Insert notes
+      if (notes.trim()) {
+        await supabase.from('notes').insert({
+          user_id: user.id,
+          date: dateStr,
+          content: notes
+        });
+      }
+
+      toast.success('Data saved successfully');
+    } catch (error) {
+      console.error('Error saving data:', error);
+      toast.error('Failed to save data');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-6 lg:p-8">
@@ -329,6 +590,13 @@ const Index = () => {
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
           />
+        </div>
+
+        {/* Save Button */}
+        <div className="flex justify-end mt-4">
+          <Button onClick={saveData} disabled={isLoading} size="lg">
+            {isLoading ? 'Saving...' : 'Save All Data'}
+          </Button>
         </div>
       </div>
     </div>
