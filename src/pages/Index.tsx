@@ -17,26 +17,28 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
-interface SaleEntry {
-  id: string;
-  productName: string;
-  price: string;
-  quantity: string;
-  total: number;
+interface SalesData {
+  petrol: { price: string; quantity: string; total: number };
+  powerPetrol: { price: string; quantity: string; total: number };
+  diesel: { price: string; quantity: string; total: number };
+  other: { price: string; quantity: string; total: number };
 }
 
-interface EarningEntry {
-  id: string;
-  modeName: string;
-  amount: string;
+interface ExpenseData {
+  petrolTesting: { price: string; quantity: string; total: number };
+  powerPetrolTesting: { price: string; quantity: string; total: number };
+  dieselTesting: { price: string; quantity: string; total: number };
+  tankerDiesel: { price: string; quantity: string; total: number };
 }
 
-interface ExpenseEntry {
-  id: string;
-  itemName: string;
-  price: string;
-  quantity: string;
-  total: number;
+interface EarningsData {
+  cash: string;
+  phonePayNight: string;
+  phonePayDay: string;
+  cardSwipe: string;
+  hpPaySwipe: string;
+  opt: string;
+  other: string;
 }
 
 interface CashEntry {
@@ -50,20 +52,32 @@ const Index = () => {
   const [date, setDate] = useState<Date>(new Date());
   const [isLoading, setIsLoading] = useState(false);
 
-  // Sales state - dynamic entries
-  const [salesEntries, setSalesEntries] = useState<SaleEntry[]>([
-    { id: '1', productName: '', price: '', quantity: '', total: 0 }
-  ]);
+  // Sales state - fixed fields
+  const [salesData, setSalesData] = useState<SalesData>({
+    petrol: { price: '', quantity: '', total: 0 },
+    powerPetrol: { price: '', quantity: '', total: 0 },
+    diesel: { price: '', quantity: '', total: 0 },
+    other: { price: '', quantity: '', total: 0 },
+  });
 
-  // Earnings state - dynamic entries
-  const [earningsEntries, setEarningsEntries] = useState<EarningEntry[]>([
-    { id: '1', modeName: '', amount: '' }
-  ]);
+  // Earnings state - fixed fields
+  const [earningsData, setEarningsData] = useState<EarningsData>({
+    cash: '',
+    phonePayNight: '',
+    phonePayDay: '',
+    cardSwipe: '',
+    hpPaySwipe: '',
+    opt: '',
+    other: '',
+  });
 
-  // Expense state - dynamic entries
-  const [expenseEntries, setExpenseEntries] = useState<ExpenseEntry[]>([
-    { id: '1', itemName: '', price: '', quantity: '', total: 0 }
-  ]);
+  // Expense state - fixed fields
+  const [expenseData, setExpenseData] = useState<ExpenseData>({
+    petrolTesting: { price: '', quantity: '', total: 0 },
+    powerPetrolTesting: { price: '', quantity: '', total: 0 },
+    dieselTesting: { price: '', quantity: '', total: 0 },
+    tankerDiesel: { price: '', quantity: '', total: 0 },
+  });
 
   // Employee cash state
   const [shortEntries, setShortEntries] = useState<CashEntry[]>([{ id: '1', name: '', amount: '' }]);
@@ -95,66 +109,32 @@ const Index = () => {
   const [notes, setNotes] = useState("");
 
   // Sales handlers
-  const handleAddSale = () => {
-    setSalesEntries(prev => [...prev, { id: Date.now().toString(), productName: '', price: '', quantity: '', total: 0 }]);
-  };
-
-  const handleRemoveSale = (id: string) => {
-    setSalesEntries(prev => prev.filter(e => e.id !== id));
-  };
-
-  const handleUpdateSale = (id: string, field: 'productName' | 'price' | 'quantity', value: string) => {
-    setSalesEntries(prev => prev.map(entry => {
-      if (entry.id === id) {
-        const updated = { ...entry, [field]: value };
-        if (field === 'price' || field === 'quantity') {
-          updated.total = parseFloat(updated.price || '0') * parseFloat(updated.quantity || '0');
-        }
-        return updated;
-      }
-      return entry;
-    }));
+  const handleUpdateSale = (product: keyof SalesData, field: 'price' | 'quantity', value: string) => {
+    setSalesData(prev => {
+      const updated = { ...prev[product], [field]: value };
+      updated.total = parseFloat(updated.price || '0') * parseFloat(updated.quantity || '0');
+      return { ...prev, [product]: updated };
+    });
   };
 
   // Earnings handlers
-  const handleAddEarning = () => {
-    setEarningsEntries(prev => [...prev, { id: Date.now().toString(), modeName: '', amount: '' }]);
-  };
-
-  const handleRemoveEarning = (id: string) => {
-    setEarningsEntries(prev => prev.filter(e => e.id !== id));
-  };
-
-  const handleUpdateEarning = (id: string, field: 'modeName' | 'amount', value: string) => {
-    setEarningsEntries(prev => prev.map(entry => entry.id === id ? { ...entry, [field]: value } : entry));
+  const handleUpdateEarning = (mode: keyof EarningsData, value: string) => {
+    setEarningsData(prev => ({ ...prev, [mode]: value }));
   };
 
   // Expense handlers
-  const handleAddExpense = () => {
-    setExpenseEntries(prev => [...prev, { id: Date.now().toString(), itemName: '', price: '', quantity: '', total: 0 }]);
-  };
-
-  const handleRemoveExpense = (id: string) => {
-    setExpenseEntries(prev => prev.filter(e => e.id !== id));
-  };
-
-  const handleUpdateExpense = (id: string, field: 'itemName' | 'price' | 'quantity', value: string) => {
-    setExpenseEntries(prev => prev.map(entry => {
-      if (entry.id === id) {
-        const updated = { ...entry, [field]: value };
-        if (field === 'price' || field === 'quantity') {
-          updated.total = parseFloat(updated.price || '0') * parseFloat(updated.quantity || '0');
-        }
-        return updated;
-      }
-      return entry;
-    }));
+  const handleUpdateExpense = (item: keyof ExpenseData, field: 'price' | 'quantity', value: string) => {
+    setExpenseData(prev => {
+      const updated = { ...prev[item], [field]: value };
+      updated.total = parseFloat(updated.price || '0') * parseFloat(updated.quantity || '0');
+      return { ...prev, [item]: updated };
+    });
   };
 
   // Calculate totals
-  const totalSales = salesEntries.reduce((sum, entry) => sum + entry.total, 0);
-  const totalEarnings = earningsEntries.reduce((sum, entry) => sum + parseFloat(entry.amount || '0'), 0);
-  const totalExpenses = expenseEntries.reduce((sum, entry) => sum + entry.total, 0);
+  const totalSales = Object.values(salesData).reduce((sum, item) => sum + item.total, 0);
+  const totalEarnings = Object.values(earningsData).reduce((sum, amount) => sum + parseFloat(amount || '0'), 0);
+  const totalExpenses = Object.values(expenseData).reduce((sum, item) => sum + item.total, 0);
   const totalShort = shortEntries.reduce((sum, entry) => sum + parseFloat(entry.amount || '0'), 0);
   const totalBorrow = borrowEntries.reduce((sum, entry) => sum + parseFloat(entry.amount || '0'), 0);
   const totalReceived = receivedEntries.reduce((sum, entry) => sum + parseFloat(entry.amount || '0'), 0);
@@ -172,59 +152,96 @@ const Index = () => {
       
       try {
         // Load sales
-        const { data: salesData } = await supabase
+        const { data: salesDbData } = await supabase
           .from('sales')
           .select('*')
           .eq('user_id', user.id)
           .eq('date', dateStr);
         
-        if (salesData && salesData.length > 0) {
-          setSalesEntries(salesData.map(s => ({
-            id: s.id,
-            productName: s.product_name,
-            price: s.price.toString(),
-            quantity: s.quantity.toString(),
-            total: s.total
-          })));
-        } else {
-          setSalesEntries([{ id: '1', productName: '', price: '', quantity: '', total: 0 }]);
+        const newSalesData: SalesData = {
+          petrol: { price: '', quantity: '', total: 0 },
+          powerPetrol: { price: '', quantity: '', total: 0 },
+          diesel: { price: '', quantity: '', total: 0 },
+          other: { price: '', quantity: '', total: 0 },
+        };
+        
+        if (salesDbData && salesDbData.length > 0) {
+          salesDbData.forEach(s => {
+            const key = s.product_name.replace(/\s/g, '') as keyof SalesData;
+            if (key === 'petrol' || key === 'powerPetrol' || key === 'diesel' || key === 'other') {
+              newSalesData[key] = {
+                price: s.price.toString(),
+                quantity: s.quantity.toString(),
+                total: s.total
+              };
+            }
+          });
         }
+        setSalesData(newSalesData);
 
         // Load earnings
-        const { data: earningsData } = await supabase
+        const { data: earningsDbData } = await supabase
           .from('earnings')
           .select('*')
           .eq('user_id', user.id)
           .eq('date', dateStr);
         
-        if (earningsData && earningsData.length > 0) {
-          setEarningsEntries(earningsData.map(e => ({
-            id: e.id,
-            modeName: e.mode_name,
-            amount: e.amount.toString()
-          })));
-        } else {
-          setEarningsEntries([{ id: '1', modeName: '', amount: '' }]);
+        const newEarningsData: EarningsData = {
+          cash: '',
+          phonePayNight: '',
+          phonePayDay: '',
+          cardSwipe: '',
+          hpPaySwipe: '',
+          opt: '',
+          other: '',
+        };
+        
+        if (earningsDbData && earningsDbData.length > 0) {
+          earningsDbData.forEach(e => {
+            const key = e.mode_name.replace(/\s/g, '').replace(/[()]/g, '') as keyof EarningsData;
+            const mapping: Record<string, keyof EarningsData> = {
+              'cash': 'cash',
+              'phonePayNight': 'phonePayNight',
+              'phonePayDay': 'phonePayDay',
+              'cardSwipe': 'cardSwipe',
+              'hpPaySwipe': 'hpPaySwipe',
+              'opt': 'opt',
+              'other': 'other',
+            };
+            if (mapping[key]) {
+              newEarningsData[mapping[key]] = e.amount.toString();
+            }
+          });
         }
+        setEarningsData(newEarningsData);
 
         // Load expenses
-        const { data: expensesData } = await supabase
+        const { data: expensesDbData } = await supabase
           .from('expenses')
           .select('*')
           .eq('user_id', user.id)
           .eq('date', dateStr);
         
-        if (expensesData && expensesData.length > 0) {
-          setExpenseEntries(expensesData.map(e => ({
-            id: e.id,
-            itemName: e.item_name,
-            price: e.price.toString(),
-            quantity: e.quantity.toString(),
-            total: e.total
-          })));
-        } else {
-          setExpenseEntries([{ id: '1', itemName: '', price: '', quantity: '', total: 0 }]);
+        const newExpenseData: ExpenseData = {
+          petrolTesting: { price: '', quantity: '', total: 0 },
+          powerPetrolTesting: { price: '', quantity: '', total: 0 },
+          dieselTesting: { price: '', quantity: '', total: 0 },
+          tankerDiesel: { price: '', quantity: '', total: 0 },
+        };
+        
+        if (expensesDbData && expensesDbData.length > 0) {
+          expensesDbData.forEach(e => {
+            const key = e.item_name.replace(/\s/g, '') as keyof ExpenseData;
+            if (key === 'petrolTesting' || key === 'powerPetrolTesting' || key === 'dieselTesting' || key === 'tankerDiesel') {
+              newExpenseData[key] = {
+                price: e.price.toString(),
+                quantity: e.quantity.toString(),
+                total: e.total
+              };
+            }
+          });
         }
+        setExpenseData(newExpenseData);
 
         // Load employee cash
         const { data: employeeCashData } = await supabase
@@ -324,46 +341,49 @@ const Index = () => {
       await supabase.from('notes').delete().eq('user_id', user.id).eq('date', dateStr);
 
       // Insert sales
-      const validSales = salesEntries.filter(s => s.productName && s.price && s.quantity);
-      if (validSales.length > 0) {
-        await supabase.from('sales').insert(
-          validSales.map(s => ({
-            user_id: user.id,
-            date: dateStr,
-            product_name: s.productName,
-            price: parseFloat(s.price),
-            quantity: parseFloat(s.quantity),
-            total: s.total
-          }))
-        );
+      const salesToInsert = Object.entries(salesData)
+        .filter(([_, data]) => data.price && data.quantity)
+        .map(([product, data]) => ({
+          user_id: user.id,
+          date: dateStr,
+          product_name: product,
+          price: parseFloat(data.price),
+          quantity: parseFloat(data.quantity),
+          total: data.total
+        }));
+      
+      if (salesToInsert.length > 0) {
+        await supabase.from('sales').insert(salesToInsert);
       }
 
       // Insert earnings
-      const validEarnings = earningsEntries.filter(e => e.modeName && e.amount);
-      if (validEarnings.length > 0) {
-        await supabase.from('earnings').insert(
-          validEarnings.map(e => ({
-            user_id: user.id,
-            date: dateStr,
-            mode_name: e.modeName,
-            amount: parseFloat(e.amount)
-          }))
-        );
+      const earningsToInsert = Object.entries(earningsData)
+        .filter(([_, amount]) => amount)
+        .map(([mode, amount]) => ({
+          user_id: user.id,
+          date: dateStr,
+          mode_name: mode,
+          amount: parseFloat(amount)
+        }));
+      
+      if (earningsToInsert.length > 0) {
+        await supabase.from('earnings').insert(earningsToInsert);
       }
 
       // Insert expenses
-      const validExpenses = expenseEntries.filter(e => e.itemName && e.price && e.quantity);
-      if (validExpenses.length > 0) {
-        await supabase.from('expenses').insert(
-          validExpenses.map(e => ({
-            user_id: user.id,
-            date: dateStr,
-            item_name: e.itemName,
-            price: parseFloat(e.price),
-            quantity: parseFloat(e.quantity),
-            total: e.total
-          }))
-        );
+      const expensesToInsert = Object.entries(expenseData)
+        .filter(([_, data]) => data.price && data.quantity)
+        .map(([item, data]) => ({
+          user_id: user.id,
+          date: dateStr,
+          item_name: item,
+          price: parseFloat(data.price),
+          quantity: parseFloat(data.quantity),
+          total: data.total
+        }));
+      
+      if (expensesToInsert.length > 0) {
+        await supabase.from('expenses').insert(expensesToInsert);
       }
 
       // Insert employee cash
@@ -474,15 +494,11 @@ const Index = () => {
           {/* Left Column */}
           <div className="space-y-4">
             <SalesSection
-              entries={salesEntries}
-              onAdd={handleAddSale}
-              onRemove={handleRemoveSale}
+              data={salesData}
               onUpdate={handleUpdateSale}
             />
             <ExpenseSection
-              entries={expenseEntries}
-              onAdd={handleAddExpense}
-              onRemove={handleRemoveExpense}
+              data={expenseData}
               onUpdate={handleUpdateExpense}
             />
           </div>
@@ -490,9 +506,7 @@ const Index = () => {
           {/* Right Column */}
           <div className="space-y-4">
             <EarningsSection
-              entries={earningsEntries}
-              onAdd={handleAddEarning}
-              onRemove={handleRemoveEarning}
+              data={earningsData}
               onUpdate={handleUpdateEarning}
             />
             <EmployeeCashSection
