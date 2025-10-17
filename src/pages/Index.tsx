@@ -24,11 +24,27 @@ interface SalesData {
   other: { price: string; quantity: string; total: number };
 }
 
+interface AdditionalSaleEntry {
+  id: string;
+  productName: string;
+  price: string;
+  quantity: string;
+  total: number;
+}
+
 interface ExpenseData {
   petrolTesting: { price: string; quantity: string; total: number };
   powerPetrolTesting: { price: string; quantity: string; total: number };
   dieselTesting: { price: string; quantity: string; total: number };
   tankerDiesel: { price: string; quantity: string; total: number };
+}
+
+interface AdditionalExpenseEntry {
+  id: string;
+  itemName: string;
+  price: string;
+  quantity: string;
+  total: number;
 }
 
 interface EarningsData {
@@ -39,6 +55,12 @@ interface EarningsData {
   hpPaySwipe: string;
   opt: string;
   other: string;
+}
+
+interface AdditionalEarningEntry {
+  id: string;
+  modeName: string;
+  amount: string;
 }
 
 interface CashEntry {
@@ -59,6 +81,7 @@ const Index = () => {
     diesel: { price: '', quantity: '', total: 0 },
     other: { price: '', quantity: '', total: 0 },
   });
+  const [additionalSales, setAdditionalSales] = useState<AdditionalSaleEntry[]>([]);
 
   // Earnings state - fixed fields
   const [earningsData, setEarningsData] = useState<EarningsData>({
@@ -70,6 +93,7 @@ const Index = () => {
     opt: '',
     other: '',
   });
+  const [additionalEarnings, setAdditionalEarnings] = useState<AdditionalEarningEntry[]>([]);
 
   // Expense state - fixed fields
   const [expenseData, setExpenseData] = useState<ExpenseData>({
@@ -78,6 +102,7 @@ const Index = () => {
     dieselTesting: { price: '', quantity: '', total: 0 },
     tankerDiesel: { price: '', quantity: '', total: 0 },
   });
+  const [additionalExpenses, setAdditionalExpenses] = useState<AdditionalExpenseEntry[]>([]);
 
   // Employee cash state
   const [shortEntries, setShortEntries] = useState<CashEntry[]>([{ id: '1', name: '', amount: '' }]);
@@ -117,9 +142,42 @@ const Index = () => {
     });
   };
 
+  const handleAddSale = () => {
+    setAdditionalSales(prev => [...prev, { id: Date.now().toString(), productName: '', price: '', quantity: '', total: 0 }]);
+  };
+
+  const handleRemoveSale = (id: string) => {
+    setAdditionalSales(prev => prev.filter(e => e.id !== id));
+  };
+
+  const handleUpdateSaleEntry = (id: string, field: 'productName' | 'price' | 'quantity', value: string) => {
+    setAdditionalSales(prev => prev.map(entry => {
+      if (entry.id === id) {
+        const updated = { ...entry, [field]: value };
+        if (field === 'price' || field === 'quantity') {
+          updated.total = parseFloat(updated.price || '0') * parseFloat(updated.quantity || '0');
+        }
+        return updated;
+      }
+      return entry;
+    }));
+  };
+
   // Earnings handlers
   const handleUpdateEarning = (mode: keyof EarningsData, value: string) => {
     setEarningsData(prev => ({ ...prev, [mode]: value }));
+  };
+
+  const handleAddEarning = () => {
+    setAdditionalEarnings(prev => [...prev, { id: Date.now().toString(), modeName: '', amount: '' }]);
+  };
+
+  const handleRemoveEarning = (id: string) => {
+    setAdditionalEarnings(prev => prev.filter(e => e.id !== id));
+  };
+
+  const handleUpdateEarningEntry = (id: string, field: 'modeName' | 'amount', value: string) => {
+    setAdditionalEarnings(prev => prev.map(entry => entry.id === id ? { ...entry, [field]: value } : entry));
   };
 
   // Expense handlers
@@ -131,10 +189,31 @@ const Index = () => {
     });
   };
 
+  const handleAddExpense = () => {
+    setAdditionalExpenses(prev => [...prev, { id: Date.now().toString(), itemName: '', price: '', quantity: '', total: 0 }]);
+  };
+
+  const handleRemoveExpense = (id: string) => {
+    setAdditionalExpenses(prev => prev.filter(e => e.id !== id));
+  };
+
+  const handleUpdateExpenseEntry = (id: string, field: 'itemName' | 'price' | 'quantity', value: string) => {
+    setAdditionalExpenses(prev => prev.map(entry => {
+      if (entry.id === id) {
+        const updated = { ...entry, [field]: value };
+        if (field === 'price' || field === 'quantity') {
+          updated.total = parseFloat(updated.price || '0') * parseFloat(updated.quantity || '0');
+        }
+        return updated;
+      }
+      return entry;
+    }));
+  };
+
   // Calculate totals
-  const totalSales = Object.values(salesData).reduce((sum, item) => sum + item.total, 0);
-  const totalEarnings = Object.values(earningsData).reduce((sum, amount) => sum + parseFloat(amount || '0'), 0);
-  const totalExpenses = Object.values(expenseData).reduce((sum, item) => sum + item.total, 0);
+  const totalSales = Object.values(salesData).reduce((sum, item) => sum + item.total, 0) + additionalSales.reduce((sum, entry) => sum + entry.total, 0);
+  const totalEarnings = Object.values(earningsData).reduce((sum, amount) => sum + parseFloat(amount || '0'), 0) + additionalEarnings.reduce((sum, entry) => sum + parseFloat(entry.amount || '0'), 0);
+  const totalExpenses = Object.values(expenseData).reduce((sum, item) => sum + item.total, 0) + additionalExpenses.reduce((sum, entry) => sum + entry.total, 0);
   const totalShort = shortEntries.reduce((sum, entry) => sum + parseFloat(entry.amount || '0'), 0);
   const totalBorrow = borrowEntries.reduce((sum, entry) => sum + parseFloat(entry.amount || '0'), 0);
   const totalReceived = receivedEntries.reduce((sum, entry) => sum + parseFloat(entry.amount || '0'), 0);
@@ -165,6 +244,8 @@ const Index = () => {
           other: { price: '', quantity: '', total: 0 },
         };
         
+        const newAdditionalSales: AdditionalSaleEntry[] = [];
+        
         if (salesDbData && salesDbData.length > 0) {
           salesDbData.forEach(s => {
             const key = s.product_name.replace(/\s/g, '') as keyof SalesData;
@@ -174,10 +255,19 @@ const Index = () => {
                 quantity: s.quantity.toString(),
                 total: s.total
               };
+            } else {
+              newAdditionalSales.push({
+                id: s.id,
+                productName: s.product_name,
+                price: s.price.toString(),
+                quantity: s.quantity.toString(),
+                total: s.total
+              });
             }
           });
         }
         setSalesData(newSalesData);
+        setAdditionalSales(newAdditionalSales);
 
         // Load earnings
         const { data: earningsDbData } = await supabase
@@ -196,6 +286,8 @@ const Index = () => {
           other: '',
         };
         
+        const newAdditionalEarnings: AdditionalEarningEntry[] = [];
+        
         if (earningsDbData && earningsDbData.length > 0) {
           earningsDbData.forEach(e => {
             const key = e.mode_name.replace(/\s/g, '').replace(/[()]/g, '') as keyof EarningsData;
@@ -210,10 +302,17 @@ const Index = () => {
             };
             if (mapping[key]) {
               newEarningsData[mapping[key]] = e.amount.toString();
+            } else {
+              newAdditionalEarnings.push({
+                id: e.id,
+                modeName: e.mode_name,
+                amount: e.amount.toString()
+              });
             }
           });
         }
         setEarningsData(newEarningsData);
+        setAdditionalEarnings(newAdditionalEarnings);
 
         // Load expenses
         const { data: expensesDbData } = await supabase
@@ -229,6 +328,8 @@ const Index = () => {
           tankerDiesel: { price: '', quantity: '', total: 0 },
         };
         
+        const newAdditionalExpenses: AdditionalExpenseEntry[] = [];
+        
         if (expensesDbData && expensesDbData.length > 0) {
           expensesDbData.forEach(e => {
             const key = e.item_name.replace(/\s/g, '') as keyof ExpenseData;
@@ -238,10 +339,19 @@ const Index = () => {
                 quantity: e.quantity.toString(),
                 total: e.total
               };
+            } else {
+              newAdditionalExpenses.push({
+                id: e.id,
+                itemName: e.item_name,
+                price: e.price.toString(),
+                quantity: e.quantity.toString(),
+                total: e.total
+              });
             }
           });
         }
         setExpenseData(newExpenseData);
+        setAdditionalExpenses(newAdditionalExpenses);
 
         // Load employee cash
         const { data: employeeCashData } = await supabase
@@ -340,47 +450,81 @@ const Index = () => {
       await supabase.from('readings').delete().eq('user_id', user.id).eq('date', dateStr);
       await supabase.from('notes').delete().eq('user_id', user.id).eq('date', dateStr);
 
-      // Insert sales
-      const salesToInsert = Object.entries(salesData)
-        .filter(([_, data]) => data.price && data.quantity)
-        .map(([product, data]) => ({
-          user_id: user.id,
-          date: dateStr,
-          product_name: product,
-          price: parseFloat(data.price),
-          quantity: parseFloat(data.quantity),
-          total: data.total
-        }));
+      // Insert sales (fixed fields + additional entries)
+      const salesToInsert = [
+        ...Object.entries(salesData)
+          .filter(([_, data]) => data.price && data.quantity)
+          .map(([product, data]) => ({
+            user_id: user.id,
+            date: dateStr,
+            product_name: product,
+            price: parseFloat(data.price),
+            quantity: parseFloat(data.quantity),
+            total: data.total
+          })),
+        ...additionalSales
+          .filter(s => s.productName && s.price && s.quantity)
+          .map(s => ({
+            user_id: user.id,
+            date: dateStr,
+            product_name: s.productName,
+            price: parseFloat(s.price),
+            quantity: parseFloat(s.quantity),
+            total: s.total
+          }))
+      ];
       
       if (salesToInsert.length > 0) {
         await supabase.from('sales').insert(salesToInsert);
       }
 
-      // Insert earnings
-      const earningsToInsert = Object.entries(earningsData)
-        .filter(([_, amount]) => amount)
-        .map(([mode, amount]) => ({
-          user_id: user.id,
-          date: dateStr,
-          mode_name: mode,
-          amount: parseFloat(amount)
-        }));
+      // Insert earnings (fixed fields + additional entries)
+      const earningsToInsert = [
+        ...Object.entries(earningsData)
+          .filter(([_, amount]) => amount)
+          .map(([mode, amount]) => ({
+            user_id: user.id,
+            date: dateStr,
+            mode_name: mode,
+            amount: parseFloat(amount)
+          })),
+        ...additionalEarnings
+          .filter(e => e.modeName && e.amount)
+          .map(e => ({
+            user_id: user.id,
+            date: dateStr,
+            mode_name: e.modeName,
+            amount: parseFloat(e.amount)
+          }))
+      ];
       
       if (earningsToInsert.length > 0) {
         await supabase.from('earnings').insert(earningsToInsert);
       }
 
-      // Insert expenses
-      const expensesToInsert = Object.entries(expenseData)
-        .filter(([_, data]) => data.price && data.quantity)
-        .map(([item, data]) => ({
-          user_id: user.id,
-          date: dateStr,
-          item_name: item,
-          price: parseFloat(data.price),
-          quantity: parseFloat(data.quantity),
-          total: data.total
-        }));
+      // Insert expenses (fixed fields + additional entries)
+      const expensesToInsert = [
+        ...Object.entries(expenseData)
+          .filter(([_, data]) => data.price && data.quantity)
+          .map(([item, data]) => ({
+            user_id: user.id,
+            date: dateStr,
+            item_name: item,
+            price: parseFloat(data.price),
+            quantity: parseFloat(data.quantity),
+            total: data.total
+          })),
+        ...additionalExpenses
+          .filter(e => e.itemName && e.price && e.quantity)
+          .map(e => ({
+            user_id: user.id,
+            date: dateStr,
+            item_name: e.itemName,
+            price: parseFloat(e.price),
+            quantity: parseFloat(e.quantity),
+            total: e.total
+          }))
+      ];
       
       if (expensesToInsert.length > 0) {
         await supabase.from('expenses').insert(expensesToInsert);
@@ -496,10 +640,18 @@ const Index = () => {
             <SalesSection
               data={salesData}
               onUpdate={handleUpdateSale}
+              additionalEntries={additionalSales}
+              onAddEntry={handleAddSale}
+              onRemoveEntry={handleRemoveSale}
+              onUpdateEntry={handleUpdateSaleEntry}
             />
             <ExpenseSection
               data={expenseData}
               onUpdate={handleUpdateExpense}
+              additionalEntries={additionalExpenses}
+              onAddEntry={handleAddExpense}
+              onRemoveEntry={handleRemoveExpense}
+              onUpdateEntry={handleUpdateExpenseEntry}
             />
           </div>
 
@@ -508,6 +660,10 @@ const Index = () => {
             <EarningsSection
               data={earningsData}
               onUpdate={handleUpdateEarning}
+              additionalEntries={additionalEarnings}
+              onAddEntry={handleAddEarning}
+              onRemoveEntry={handleRemoveEarning}
+              onUpdateEntry={handleUpdateEarningEntry}
             />
             <EmployeeCashSection
               shortEntries={shortEntries}
